@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -62,8 +63,8 @@ class OrderController extends Controller
 
     public function checkout()
     {
-        $cart = session()->get('cart', []);
-        
+        $cart = $this->getCartItems();
+
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
@@ -80,8 +81,8 @@ class OrderController extends Controller
             'phone' => 'required|string',
         ]);
 
-        $cart = session()->get('cart', []);
-        
+        $cart = $this->getCartItems();
+
         if (empty($cart)) {
             return response()->json([
                 'success' => false,
@@ -90,8 +91,20 @@ class OrderController extends Controller
         }
 
         DB::beginTransaction();
-        
+
         try {
+            // Validate stock
+            foreach ($cart as $item) {
+                $product = Product::findOrFail($item['id']);
+                if ($product->stock < $item['quantity']) {
+                    DB::rollback();
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Not enough stock for {$item['name']}"
+                    ], 400);
+                }
+            }
+
             $total = array_sum(array_map(function($item) {
                 return $item['price'] * $item['quantity'];
             }, $cart));
@@ -120,7 +133,13 @@ class OrderController extends Controller
                 Product::where('id', $item['id'])->decrement('stock', $item['quantity']);
             }
 
-            session()->forget('cart');
+            // Clear cart
+            if (Auth::check()) {
+                Cart::where('user_id', Auth::id())->delete();
+            } else {
+                session()->forget('cart');
+            }
+
             DB::commit();
 
             return response()->json([
@@ -131,6 +150,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
+            \Log::error('Order creation failed', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to place order'
@@ -146,5 +166,25 @@ class OrderController extends Controller
 
         $order->load('orderItems.product');
         return view('orders.show', compact('order'));
+    }
+
+    private function getCartItems()
+    {
+        if (Auth::check()) {
+            return Cart::where('user_id', Auth::id())
+                ->with('product')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->product_id,
+                        'name' => $item->product->name,
+                        'price' => $item->product->price,
+                        'quantity' => $item->quantity,
+                        'image' => $item->product->main_image,
+                    ];
+                })->toArray();
+        }
+
+        return session()->get('cart', []);
     }
 }

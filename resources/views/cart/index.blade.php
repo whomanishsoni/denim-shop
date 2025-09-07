@@ -97,19 +97,19 @@
 
 @push('scripts')
 <script>
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
 function cart() {
     return {
-        cartItems: [],
+        cartItems: @json($cartItems),
         cartTotal: 0,
 
         init() {
-            this.loadCart();
-        },
-
-        loadCart() {
-            // Get cart from session (we'll need to expose this data)
-            const cart = @json(session()->get('cart', []));
-            this.cartItems = Object.values(cart);
+            console.log('Cart items loaded:', this.cartItems);
             this.calculateTotal();
         },
 
@@ -117,9 +117,11 @@ function cart() {
             this.cartTotal = this.cartItems.reduce((total, item) => {
                 return total + (parseFloat(item.price) * item.quantity);
             }, 0);
+            console.log('Cart total calculated:', this.cartTotal);
         },
 
         updateQuantity(productId, quantity) {
+            console.log('Updating quantity:', { productId, quantity });
             if (quantity <= 0) {
                 this.removeItem(productId);
                 return;
@@ -134,7 +136,6 @@ function cart() {
                 },
                 success: (data) => {
                     if (data.success) {
-                        // Update local data
                         const item = this.cartItems.find(item => item.id == productId);
                         if (item) {
                             item.quantity = quantity;
@@ -152,6 +153,7 @@ function cart() {
         },
 
         removeItem(productId) {
+            console.log('Removing item:', productId);
             $.ajax({
                 url: '/cart/remove',
                 method: 'DELETE',

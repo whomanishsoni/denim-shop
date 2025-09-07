@@ -123,7 +123,7 @@
                                 </h3>
                                 <p class="text-gray-600 text-sm mb-3" x-text="product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description"></p>
                                 <button 
-                                    @click="addToCart(product.id)" 
+                                    @click="addToCart(product.id, $event)" 
                                     class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
                                     :disabled="product.stock === 0"
                                     :class="product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
@@ -177,6 +177,12 @@
 
 @push('scripts')
 <script>
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
 function productsFilter() {
     return {
         products: [],
@@ -257,11 +263,14 @@ function productsFilter() {
             return pages;
         },
 
-        addToCart(productId) {
+        addToCart(productId, event) {
+            const button = event.target.closest('button');
+            button.disabled = true;
+            console.log('Adding to cart:', { product_id: productId, quantity: 1 });
+
             $.post('/cart/add', {
                 product_id: productId,
-                quantity: 1,
-                _token: '{{ csrf_token() }}'
+                quantity: 1
             })
             .done(function(data) {
                 if (data.success) {
@@ -272,6 +281,9 @@ function productsFilter() {
             .fail(function(xhr) {
                 const response = xhr.responseJSON;
                 showMessage(response.message || 'Failed to add product to cart', 'error');
+            })
+            .always(function() {
+                button.disabled = false;
             });
         }
     }

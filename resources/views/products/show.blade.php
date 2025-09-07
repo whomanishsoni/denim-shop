@@ -66,7 +66,7 @@
                 </div>
 
                 <button 
-                    @click="addToCart({{ $product->id }}, quantity)"
+                    @click="addToCart({{ $product->id }}, quantity, $event)"
                     :disabled="{{ $product->stock == 0 ? 'true' : 'false' }}"
                     class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -115,17 +115,26 @@
 
 @push('scripts')
 <script>
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
 function productGallery() {
     return {
-        selectedImage: '{{ $product->main_image }}'
+        selectedImage: '{{ \Illuminate\Support\Facades\Storage::url($product->main_image) }}'
     }
 }
 
-function addToCart(productId, quantity) {
+function addToCart(productId, quantity, event) {
+    const button = event.target.closest('button');
+    button.disabled = true;
+    console.log('Adding to cart:', { product_id: productId, quantity: quantity });
+
     $.post('/cart/add', {
         product_id: productId,
-        quantity: quantity,
-        _token: '{{ csrf_token() }}'
+        quantity: quantity
     })
     .done(function(data) {
         if (data.success) {
@@ -136,6 +145,9 @@ function addToCart(productId, quantity) {
     .fail(function(xhr) {
         const response = xhr.responseJSON;
         showMessage(response.message || 'Failed to add product to cart', 'error');
+    })
+    .always(function() {
+        button.disabled = false;
     });
 }
 </script>
