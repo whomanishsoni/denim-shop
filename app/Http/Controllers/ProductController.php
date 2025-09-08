@@ -32,13 +32,19 @@ class ProductController extends Controller
         }
 
         // Size filter
-        if ($request->has('size') && $request->size) {
-            $query->whereJsonContains('sizes', $request->size);
+        if ($request->has('sizes') && $request->sizes) {
+            $sizes = is_array($request->sizes) ? $request->sizes : [$request->sizes];
+            foreach ($sizes as $size) {
+                $query->whereJsonContains('sizes', $size);
+            }
         }
 
         // Color filter
-        if ($request->has('color') && $request->color) {
-            $query->whereJsonContains('colors', $request->color);
+        if ($request->has('colors') && $request->colors) {
+            $colors = is_array($request->colors) ? $request->colors : [$request->colors];
+            foreach ($colors as $color) {
+                $query->whereJsonContains('colors', $color);
+            }
         }
 
         // Price range filter
