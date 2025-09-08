@@ -127,6 +127,8 @@ class OrderController extends Controller
                     'product_id' => $item['id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
+                    'size' => $item['size'],
+                    'color' => $item['color'],
                 ]);
 
                 // Update product stock
@@ -181,6 +183,8 @@ class OrderController extends Controller
                         'price' => $item->product->price,
                         'quantity' => $item->quantity,
                         'image' => $item->product->main_image,
+                        'size' => $item->size,
+                        'color' => $item->color,
                     ];
                 })->toArray();
         }

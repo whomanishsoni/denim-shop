@@ -37,7 +37,7 @@
                                 <p class="text-gray-600">Placed on <span x-text="order.created_at"></span></p>
                             </div>
                             <div class="text-right">
-                                <p class="text-xl font-bold text-gray-900">$<span x-text="parseFloat(order.total).toFixed(2)"></span></p>
+                                <p class="text-xl font-bold text-gray-900">₹<span x-text="parseFloat(order.total).toFixed(2)"></span></p>
                                 <span 
                                     class="inline-block px-3 py-1 text-xs font-medium rounded-full"
                                     :class="order.status_badge"

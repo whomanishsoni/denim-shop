@@ -42,6 +42,36 @@
                     </select>
                 </div>
 
+                <!-- Size Filter -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                    <select 
+                        x-model="filters.size"
+                        @change="loadProducts()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Sizes</option>
+                        @foreach($sizes as $size)
+                            <option value="{{ $size }}">{{ $size }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Color Filter -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                    <select 
+                        x-model="filters.color"
+                        @change="loadProducts()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Colors</option>
+                        @foreach($colors as $color)
+                            <option value="{{ $color }}">{{ $color }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Price Range -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
@@ -114,22 +144,12 @@
                                 <img :src="product.main_image || '/images/placeholder.jpg'" :alt="product.name" class="w-full h-64 object-cover">
                             </a>
                             <div class="p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded" x-text="product.category"></span>
-                                    <span class="text-lg font-bold text-gray-900">₹<span x-text="parseFloat(product.price).toFixed(2)"></span></span>
-                                </div>
-                                <h3 class="font-medium text-gray-900 mb-2">
+                                <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded" x-text="product.category"></span>
+                                <h3 class="font-medium text-gray-900 mt-2 mb-1">
                                     <a :href="`/products/${product.id}`" class="hover:text-blue-600" x-text="product.name"></a>
                                 </h3>
-                                <p class="text-gray-600 text-sm mb-3" x-text="product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description"></p>
-                                <button 
-                                    @click="addToCart(product.id, $event)" 
-                                    class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
-                                    :disabled="product.stock === 0"
-                                    :class="product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-                                >
-                                    <span x-text="product.stock === 0 ? 'Out of Stock' : 'Add to Cart'"></span>
-                                </button>
+                                <p class="text-lg font-bold text-gray-900 mb-2">₹<span x-text="parseFloat(product.price).toFixed(2)"></span></p>
+                                <p class="text-gray-600 text-sm" x-text="product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description"></p>
                             </div>
                         </div>
                     </template>
@@ -191,6 +211,8 @@ function productsFilter() {
         filters: {
             search: '',
             category: '',
+            size: '',
+            color: '',
             min_price: '',
             max_price: '',
             sort: '',
@@ -203,6 +225,21 @@ function productsFilter() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('category')) {
                 this.filters.category = urlParams.get('category');
+            }
+            if (urlParams.get('size')) {
+                this.filters.size = urlParams.get('size');
+            }
+            if (urlParams.get('color')) {
+                this.filters.color = urlParams.get('color');
+            }
+            if (urlParams.get('min_price')) {
+                this.filters.min_price = urlParams.get('min_price');
+            }
+            if (urlParams.get('max_price')) {
+                this.filters.max_price = urlParams.get('max_price');
+            }
+            if (urlParams.get('sort')) {
+                this.filters.sort = urlParams.get('sort');
             }
             
             this.loadProducts();
@@ -242,6 +279,8 @@ function productsFilter() {
             this.filters = {
                 search: '',
                 category: '',
+                size: '',
+                color: '',
                 min_price: '',
                 max_price: '',
                 sort: '',
@@ -261,30 +300,6 @@ function productsFilter() {
             }
             
             return pages;
-        },
-
-        addToCart(productId, event) {
-            const button = event.target.closest('button');
-            button.disabled = true;
-            console.log('Adding to cart:', { product_id: productId, quantity: 1 });
-
-            $.post('/cart/add', {
-                product_id: productId,
-                quantity: 1
-            })
-            .done(function(data) {
-                if (data.success) {
-                    showMessage(data.message, 'success');
-                    updateCartCount();
-                }
-            })
-            .fail(function(xhr) {
-                const response = xhr.responseJSON;
-                showMessage(response.message || 'Failed to add product to cart', 'error');
-            })
-            .always(function() {
-                button.disabled = false;
-            });
         }
     }
 }

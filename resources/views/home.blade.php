@@ -6,7 +6,8 @@
 <!-- Hero Section -->
 <div class="relative bg-gray-900 text-white">
     <div class="absolute inset-0">
-        <img src="{{ \Illuminate\Support\Facades\Storage::url('hero/hero.jpeg') }}" alt="Denim Collection" class="w-full h-full object-cover opacity-50">    </div>
+        <img src="{{ \Illuminate\Support\Facades\Storage::url('hero/hero.jpeg') }}" alt="Denim Collection" class="w-full h-full object-cover opacity-50">
+    </div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div class="text-center">
             <h1 class="text-4xl md:text-6xl font-bold mb-6">
@@ -80,19 +81,18 @@
                             <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
                                 {{ $product->category }}
                             </span>
-                            <span class="text-lg font-bold text-gray-900">
-                                ${{ number_format($product->price, 2) }}
-                            </span>
                         </div>
                         <h3 class="font-medium text-gray-900 mb-2">
                             <a href="{{ route('products.show', $product) }}" class="hover:text-blue-600">
                                 {{ $product->name }}
                             </a>
                         </h3>
-                        <p class="text-gray-600 text-sm mb-3">{{ Str::limit($product->description, 80) }}</p>
-                        <button onclick="addToCart({{ $product->id }})" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
-                            Add to Cart
-                        </button>
+                        <div class="mb-2">
+                            <span class="text-lg font-bold text-gray-900">
+                                ₹{{ number_format($product->price, 2) }}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm">{{ Str::limit($product->description, 80) }}</p>
                     </div>
                 </div>
             @endforeach
@@ -122,24 +122,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    function addToCart(productId) {
-        $.post('/cart/add', {
-            product_id: productId,
-            quantity: 1
-        })
-        .done(function(data) {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                updateCartCount();
-            }
-        })
-        .fail(function(xhr) {
-            const response = xhr.responseJSON;
-            showMessage(response.message || 'Failed to add product to cart', 'error');
-        });
-    }
-</script>
-@endpush

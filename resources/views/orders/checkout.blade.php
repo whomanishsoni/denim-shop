@@ -83,10 +83,11 @@
                             <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-16 h-16 object-cover rounded">
                             <div class="flex-1">
                                 <h3 class="font-medium text-gray-900">{{ $item['name'] }}</h3>
+                                <p class="text-gray-600">Size: {{ $item['size'] }}, Color: {{ $item['color'] }}</p>
                                 <p class="text-gray-600">Quantity: {{ $item['quantity'] }}</p>
                             </div>
                             <span class="font-medium text-gray-900">
-                                ${{ number_format($item['price'] * $item['quantity'], 2) }}
+                                ₹{{ number_format($item['price'] * $item['quantity'], 2) }}
                             </span>
                         </div>
                     @endforeach
@@ -96,7 +97,7 @@
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-gray-600">Subtotal:</span>
                         <span class="font-medium text-gray-900">
-                            ${{ number_format(array_sum(array_map(function($item) { return $item['price'] * $item['quantity']; }, $cart)), 2) }}
+                            ₹{{ number_format(array_sum(array_map(function($item) { return $item['price'] * $item['quantity']; }, $cart)), 2) }}
                         </span>
                     </div>
                     <div class="flex justify-between items-center mb-2">
@@ -106,7 +107,7 @@
                     <div class="flex justify-between items-center text-lg font-semibold border-t pt-2">
                         <span>Total:</span>
                         <span>
-                            ${{ number_format(array_sum(array_map(function($item) { return $item['price'] * $item['quantity']; }, $cart)), 2) }}
+                            ₹{{ number_format(array_sum(array_map(function($item) { return $item['price'] * $item['quantity']; }, $cart)), 2) }}
                         </span>
                     </div>
                 </div>

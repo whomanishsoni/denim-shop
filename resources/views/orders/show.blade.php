@@ -17,7 +17,7 @@
                     <p class="text-gray-600">Placed on {{ $order->created_at->format('F j, Y') }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($order->total, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ number_format($order->total, 2) }}</p>
                     <span class="inline-block px-3 py-1 text-sm font-medium rounded-full {{ $order->status_badge }}">
                         {{ ucfirst($order->status) }}
                     </span>
@@ -35,11 +35,12 @@
                         <div class="flex-1">
                             <h3 class="font-medium text-gray-900">{{ $item->product->name }}</h3>
                             <p class="text-gray-600">{{ $item->product->category }}</p>
+                            <p class="text-gray-600">Size: {{ $item->size }}, Color: {{ $item->color }}</p>
                             <p class="text-gray-600">Quantity: {{ $item->quantity }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-medium text-gray-900">${{ number_format($item->price, 2) }} each</p>
-                            <p class="text-gray-600">${{ number_format($item->price * $item->quantity, 2) }} total</p>
+                            <p class="font-medium text-gray-900">₹{{ number_format($item->price, 2) }} each</p>
+                            <p class="text-gray-600">₹{{ number_format($item->price * $item->quantity, 2) }} total</p>
                         </div>
                     </div>
                 @endforeach

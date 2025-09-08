@@ -15,6 +15,8 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->integer('stock')->default(0);
             $table->enum('category', ['Jeans', 'Jackets', 'Shirts', 'Shorts', 'Vests']);
+            $table->json('sizes')->nullable();
+            $table->json('colors')->nullable();
             $table->json('images')->nullable();
             $table->timestamps();
         });

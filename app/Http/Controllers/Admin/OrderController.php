@@ -58,7 +58,7 @@ class OrderController extends Controller
                 return [
                     'id' => '#' . $order->id,
                     'customer' => $order->user->name,
-                    'total' => '$' . number_format($order->total, 2),
+                    'total' => '₹' . number_format($order->total, 2),
                     'status' => '<span class="px-2 py-1 text-xs rounded-full ' . $order->status_badge . '">' . ucfirst($order->status) . '</span>',
                     'date' => $order->created_at->format('M d, Y'),
                     'actions' => view('admin.orders.actions', compact('order'))->render()

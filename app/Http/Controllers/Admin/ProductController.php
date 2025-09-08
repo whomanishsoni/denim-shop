@@ -24,7 +24,9 @@ class ProductController extends Controller
             $query->where(function($q) use ($searchValue) {
                 $q->where('name', 'like', "%{$searchValue}%")
                   ->orWhere('description', 'like', "%{$searchValue}%")
-                  ->orWhere('category', 'like', "%{$searchValue}%");
+                  ->orWhere('category', 'like', "%{$searchValue}%")
+                  ->orWhereJsonContains('sizes', $searchValue)
+                  ->orWhereJsonContains('colors', $searchValue);
             });
         }
 
@@ -35,7 +37,7 @@ class ProductController extends Controller
         if ($request->has('order')) {
             $orderColumn = $request->order[0]['column'];
             $orderDir = $request->order[0]['dir'];
-            $columns = ['id', 'name', 'category', 'price', 'stock', 'main_image'];
+            $columns = ['id', 'name', 'category', 'sizes', 'colors', 'price', 'stock', 'main_image'];
             if (isset($columns[$orderColumn])) {
                 $query->orderBy($columns[$orderColumn], $orderDir);
             }
@@ -52,9 +54,11 @@ class ProductController extends Controller
             'recordsFiltered' => $filteredRecords,
             'data' => $products->map(function($product, $index) use ($start) {
                 return [
-                    'counter' => $start + $index + 1, // Counter starting from 1 for each page
+                    'counter' => $start + $index + 1,
                     'name' => $product->name,
                     'category' => $product->category,
+                    'sizes' => implode(', ', $product->sizes ?? []),
+                    'colors' => implode(', ', $product->colors ?? []),
                     'price' => '₹' . number_format($product->price, 2),
                     'stock' => $product->stock,
                     'main_image' => $product->main_image,
@@ -77,6 +81,10 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category' => 'required|in:' . implode(',', Product::getCategories()),
+            'sizes' => 'required|array',
+            'sizes.*' => 'in:' . implode(',', Product::getSizes()),
+            'colors' => 'required|array',
+            'colors.*' => 'in:' . implode(',', Product::getColors()),
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -119,6 +127,10 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category' => 'required|in:' . implode(',', Product::getCategories()),
+            'sizes' => 'required|array',
+            'sizes.*' => 'in:' . implode(',', Product::getSizes()),
+            'colors' => 'required|array',
+            'colors.*' => 'in:' . implode(',', Product::getColors()),
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'removed_images' => 'nullable|array',
         ]);
@@ -129,13 +141,13 @@ class ProductController extends Controller
         // Remove images marked for deletion
         if ($request->has('removed_images')) {
             foreach ($request->input('removed_images', []) as $imageUrl) {
-                $path = str_replace(Storage::url(''), '', $imageUrl); // Convert URL back to storage path
+                $path = str_replace(Storage::url(''), '', $imageUrl);
                 if (in_array($path, $imagePaths)) {
                     Storage::disk('public')->delete($path);
                     $imagePaths = array_diff($imagePaths, [$path]);
                 }
             }
-            $imagePaths = array_values($imagePaths); // Reindex array
+            $imagePaths = array_values($imagePaths);
         }
 
         // Handle new file uploads
@@ -158,7 +170,6 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Delete associated images from storage
         if ($product->images) {
             foreach ($product->images as $path) {
                 Storage::disk('public')->delete($path);

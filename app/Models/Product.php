@@ -16,6 +16,8 @@ class Product extends Model
         'price',
         'stock',
         'category',
+        'sizes',
+        'colors',
         'images',
     ];
 
@@ -23,6 +25,8 @@ class Product extends Model
     {
         return [
             'images' => 'array',
+            'sizes' => 'array',
+            'colors' => 'array',
             'price' => 'decimal:2',
         ];
     }
@@ -43,5 +47,15 @@ class Product extends Model
     public static function getCategories()
     {
         return ['Jeans', 'Jackets', 'Shirts', 'Shorts', 'Vests'];
+    }
+
+    public static function getSizes()
+    {
+        return ['S', 'M', 'L', 'XL'];
+    }
+
+    public static function getColors()
+    {
+        return ['Blue', 'Black', 'White'];
     }
 }

@@ -22,6 +22,8 @@
                     <th class="text-left">Image</th>
                     <th class="text-left">Name</th>
                     <th class="text-left">Category</th>
+                    <th class="text-left">Sizes</th>
+                    <th class="text-left">Colors</th>
                     <th class="text-left">Price</th>
                     <th class="text-left">Stock</th>
                     <th class="text-left">Actions</th>
@@ -46,7 +48,7 @@ $(document).ready(function() {
             {
                 data: 'counter',
                 render: function(data, type, row, meta) {
-                    return meta.row + meta.settings._iDisplayStart + 1; // Counter starting from 1
+                    return meta.row + meta.settings._iDisplayStart + 1;
                 }
             },
             {
@@ -59,11 +61,13 @@ $(document).ready(function() {
             },
             { data: 'name' },
             { data: 'category' },
+            { data: 'sizes' },
+            { data: 'colors' },
             { data: 'price' },
             { data: 'stock' },
             { data: 'actions', orderable: false, searchable: false }
         ],
-        order: [[2, 'desc']], // Order by name column by default
+        order: [[2, 'desc']],
         pageLength: 10,
         responsive: true,
         language: {

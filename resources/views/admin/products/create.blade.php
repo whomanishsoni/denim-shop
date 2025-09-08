@@ -89,6 +89,48 @@
             </div>
 
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sizes</label>
+                <div class="flex flex-wrap gap-4 @error('sizes') border border-red-500 rounded-md p-2 @enderror">
+                    @foreach(\App\Models\Product::getSizes() as $size)
+                        <label class="inline-flex items-center">
+                            <input 
+                                type="checkbox" 
+                                name="sizes[]" 
+                                value="{{ $size }}"
+                                {{ in_array($size, old('sizes', [])) ? 'checked' : '' }}
+                                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            >
+                            <span class="ml-2 text-sm text-gray-700">{{ $size }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('sizes')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Colors</label>
+                <div class="flex flex-wrap gap-4 @error('colors') border border-red-500 rounded-md p-2 @enderror">
+                    @foreach(\App\Models\Product::getColors() as $color)
+                        <label class="inline-flex items-center">
+                            <input 
+                                type="checkbox" 
+                                name="colors[]" 
+                                value="{{ $color }}"
+                                {{ in_array($color, old('colors', [])) ? 'checked' : '' }}
+                                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            >
+                            <span class="ml-2 text-sm text-gray-700">{{ $color }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('colors')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Images (JPEG, PNG, JPG only)</label>
                 <div class="space-y-2">
                     <template x-for="(image, index) in images" :key="index">
@@ -163,7 +205,6 @@ function productForm() {
         removeImage(index) {
             this.images.splice(index, 1);
             this.imagePreviews.splice(index, 1);
-            // Reset file input
             this.$refs['fileInput' + index]?.setAttribute('value', '');
         },
 

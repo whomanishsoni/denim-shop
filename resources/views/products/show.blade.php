@@ -44,8 +44,34 @@
                 <p class="text-gray-600">{{ $product->description }}</p>
             </div>
 
-            <!-- Add to Cart -->
-            <div x-data="{ quantity: 1 }">
+            <!-- Size and Color Selection -->
+            <div x-data="{ quantity: 1, selectedSize: '', selectedColor: '' }">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                    <select 
+                        x-model="selectedSize"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">Select Size</option>
+                        @foreach($product->sizes ?? [] as $size)
+                            <option value="{{ $size }}">{{ $size }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                    <select 
+                        x-model="selectedColor"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">Select Color</option>
+                        @foreach($product->colors ?? [] as $color)
+                            <option value="{{ $color }}">{{ $color }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="flex items-center space-x-4 mb-4">
                     <label class="text-sm font-medium text-gray-700">Quantity:</label>
                     <div class="flex items-center space-x-2">
@@ -66,8 +92,8 @@
                 </div>
 
                 <button 
-                    @click="addToCart({{ $product->id }}, quantity, $event)"
-                    :disabled="{{ $product->stock == 0 ? 'true' : 'false' }}"
+                    @click="addToCart({{ $product->id }}, quantity, selectedSize, selectedColor, $event)"
+                    :disabled="{{ $product->stock == 0 ? 'true' : 'false' }} || !selectedSize || !selectedColor"
                     class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     @if($product->stock > 0)
@@ -127,14 +153,21 @@ function productGallery() {
     }
 }
 
-function addToCart(productId, quantity, event) {
+function addToCart(productId, quantity, size, color, event) {
+    if (!size || !color) {
+        showMessage('Please select a size and color', 'error');
+        return;
+    }
+
     const button = event.target.closest('button');
     button.disabled = true;
-    console.log('Adding to cart:', { product_id: productId, quantity: quantity });
+    console.log('Adding to cart:', { product_id: productId, quantity: quantity, size: size, color: color });
 
     $.post('/cart/add', {
         product_id: productId,
-        quantity: quantity
+        quantity: quantity,
+        size: size,
+        color: color
     })
     .done(function(data) {
         if (data.success) {

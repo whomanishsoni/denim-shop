@@ -18,7 +18,7 @@
                     <p class="text-gray-600">Placed on {{ $order->created_at->format('F j, Y g:i A') }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($order->total, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ number_format($order->total, 2) }}</p>
                     <span class="inline-block px-3 py-1 text-sm font-medium rounded-full {{ $order->status_badge }}">
                         {{ ucfirst($order->status) }}
                     </span>
@@ -71,16 +71,16 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 text-gray-600">${{ number_format($item->price, 2) }}</td>
+                                <td class="py-4 text-gray-600">₹{{ number_format($item->price, 2) }}</td>
                                 <td class="py-4 text-gray-600">{{ $item->quantity }}</td>
-                                <td class="py-4 font-medium text-gray-900">${{ number_format($item->price * $item->quantity, 2) }}</td>
+                                <td class="py-4 font-medium text-gray-900">₹{{ number_format($item->price * $item->quantity, 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3" class="py-4 text-right font-semibold text-gray-900">Total:</td>
-                            <td class="py-4 font-bold text-gray-900">${{ number_format($order->total, 2) }}</td>
+                            <td class="py-4 font-bold text-gray-900">₹{{ number_format($order->total, 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>

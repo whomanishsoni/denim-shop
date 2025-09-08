@@ -46,6 +46,36 @@
                 </div>
 
                 <div class="border-t pt-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Sizes & Colors</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-gray-600">Sizes:</span>
+                            <div class="mt-1">
+                                @if($product->sizes && count($product->sizes) > 0)
+                                    @foreach($product->sizes as $size)
+                                        <span class="inline-block bg-gray-100 text-gray-800 text-sm px-2 py-1 rounded mr-1 mb-1">{{ $size }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-gray-500">No sizes specified</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Colors:</span>
+                            <div class="mt-1">
+                                @if($product->colors && count($product->colors) > 0)
+                                    @foreach($product->colors as $color)
+                                        <span class="inline-block bg-gray-100 text-gray-800 text-sm px-2 py-1 rounded mr-1 mb-1">{{ $color }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-gray-500">No colors specified</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Stock Information</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div>

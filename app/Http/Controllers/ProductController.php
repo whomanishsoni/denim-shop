@@ -11,7 +11,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $categories = Product::getCategories();
-        return view('products.index', compact('categories'));
+        $sizes = Product::getSizes();
+        $colors = Product::getColors();
+        return view('products.index', compact('categories', 'sizes', 'colors'));
     }
 
     public function data(Request $request)
@@ -27,6 +29,16 @@ class ProductController extends Controller
         // Category filter
         if ($request->has('category') && $request->category) {
             $query->where('category', $request->category);
+        }
+
+        // Size filter
+        if ($request->has('size') && $request->size) {
+            $query->whereJsonContains('sizes', $request->size);
+        }
+
+        // Color filter
+        if ($request->has('color') && $request->color) {
+            $query->whereJsonContains('colors', $request->color);
         }
 
         // Price range filter

@@ -20,25 +20,26 @@
     <div x-show="cartItems.length > 0">
         <!-- Cart Items -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-            <template x-for="item in cartItems" :key="item.id">
+            <template x-for="item in cartItems" :key="item.id + '-' + item.size + '-' + item.color">
                 <div class="flex items-center p-6 border-b border-gray-200 last:border-b-0">
                     <img :src="item.image" :alt="item.name" class="w-20 h-20 object-cover rounded">
                     
                     <div class="flex-1 ml-4">
                         <h3 class="text-lg font-medium text-gray-900" x-text="item.name"></h3>
-                        <p class="text-gray-600">$<span x-text="parseFloat(item.price).toFixed(2)"></span> each</p>
+                        <p class="text-gray-600">₹<span x-text="parseFloat(item.price).toFixed(2)"></span> each</p>
+                        <p class="text-gray-600 text-sm">Size: <span x-text="item.size"></span>, Color: <span x-text="item.color"></span></p>
                     </div>
                     
                     <div class="flex items-center space-x-3">
                         <button 
-                            @click="updateQuantity(item.id, item.quantity - 1)"
+                            @click="updateQuantity(item.id, item.quantity - 1, item.size, item.color)"
                             class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                         >
                             -
                         </button>
                         <span class="w-8 text-center" x-text="item.quantity"></span>
                         <button 
-                            @click="updateQuantity(item.id, item.quantity + 1)"
+                            @click="updateQuantity(item.id, item.quantity + 1, item.size, item.color)"
                             class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                         >
                             +
@@ -47,10 +48,10 @@
                     
                     <div class="ml-6 text-right">
                         <p class="text-lg font-medium text-gray-900">
-                            $<span x-text="(parseFloat(item.price) * item.quantity).toFixed(2)"></span>
+                            ₹<span x-text="(parseFloat(item.price) * item.quantity).toFixed(2)"></span>
                         </p>
                         <button 
-                            @click="removeItem(item.id)"
+                            @click="removeItem(item.id, item.size, item.color)"
                             class="text-red-600 hover:text-red-800 text-sm"
                         >
                             Remove
@@ -64,7 +65,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center border-t pt-4">
                 <span class="text-xl font-semibold text-gray-900">Total:</span>
-                <span class="text-2xl font-bold text-gray-900">$<span x-text="cartTotal.toFixed(2)"></span></span>
+                <span class="text-2xl font-bold text-gray-900">₹<span x-text="cartTotal.toFixed(2)"></span></span>
             </div>
             
             <div class="mt-6 flex flex-col sm:flex-row gap-4">
@@ -120,10 +121,10 @@ function cart() {
             console.log('Cart total calculated:', this.cartTotal);
         },
 
-        updateQuantity(productId, quantity) {
-            console.log('Updating quantity:', { productId, quantity });
+        updateQuantity(productId, quantity, size, color) {
+            console.log('Updating quantity:', { productId, quantity, size, color });
             if (quantity <= 0) {
-                this.removeItem(productId);
+                this.removeItem(productId, size, color);
                 return;
             }
 
@@ -132,11 +133,13 @@ function cart() {
                 method: 'PUT',
                 data: {
                     product_id: productId,
-                    quantity: quantity
+                    quantity: quantity,
+                    size: size,
+                    color: color
                 },
                 success: (data) => {
                     if (data.success) {
-                        const item = this.cartItems.find(item => item.id == productId);
+                        const item = this.cartItems.find(item => item.id == productId && item.size == size && item.color == color);
                         if (item) {
                             item.quantity = quantity;
                         }
@@ -152,17 +155,19 @@ function cart() {
             });
         },
 
-        removeItem(productId) {
-            console.log('Removing item:', productId);
+        removeItem(productId, size, color) {
+            console.log('Removing item:', { productId, size, color });
             $.ajax({
                 url: '/cart/remove',
                 method: 'DELETE',
                 data: {
-                    product_id: productId
+                    product_id: productId,
+                    size: size,
+                    color: color
                 },
                 success: (data) => {
                     if (data.success) {
-                        this.cartItems = this.cartItems.filter(item => item.id != productId);
+                        this.cartItems = this.cartItems.filter(item => !(item.id == productId && item.size == size && item.color == color));
                         this.calculateTotal();
                         updateCartCount();
                         showMessage(data.message, 'success');
