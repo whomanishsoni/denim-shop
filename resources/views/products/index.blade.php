@@ -45,31 +45,39 @@
                 <!-- Size Filter -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                    <select 
-                        x-model="filters.size"
-                        @change="loadProducts()"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">All Sizes</option>
+                    <div class="space-y-2">
                         @foreach($sizes as $size)
-                            <option value="{{ $size }}">{{ $size }}</option>
+                            <label class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    x-model="filters.sizes"
+                                    value="{{ $size }}"
+                                    @change="loadProducts()"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                >
+                                <span class="ml-2 text-sm text-gray-700">{{ $size }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
 
                 <!-- Color Filter -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                    <select 
-                        x-model="filters.color"
-                        @change="loadProducts()"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">All Colors</option>
+                    <div class="space-y-2">
                         @foreach($colors as $color)
-                            <option value="{{ $color }}">{{ $color }}</option>
+                            <label class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    x-model="filters.colors"
+                                    value="{{ $color }}"
+                                    @change="loadProducts()"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                >
+                                <span class="ml-2 text-sm text-gray-700">{{ $color }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
 
                 <!-- Price Range -->
@@ -211,8 +219,8 @@ function productsFilter() {
         filters: {
             search: '',
             category: '',
-            size: '',
-            color: '',
+            sizes: [],
+            colors: [],
             min_price: '',
             max_price: '',
             sort: '',
@@ -226,11 +234,11 @@ function productsFilter() {
             if (urlParams.get('category')) {
                 this.filters.category = urlParams.get('category');
             }
-            if (urlParams.get('size')) {
-                this.filters.size = urlParams.get('size');
+            if (urlParams.getAll('sizes[]')) {
+                this.filters.sizes = urlParams.getAll('sizes[]');
             }
-            if (urlParams.get('color')) {
-                this.filters.color = urlParams.get('color');
+            if (urlParams.getAll('colors[]')) {
+                this.filters.colors = urlParams.getAll('colors[]');
             }
             if (urlParams.get('min_price')) {
                 this.filters.min_price = urlParams.get('min_price');
@@ -250,7 +258,11 @@ function productsFilter() {
             
             const params = new URLSearchParams();
             Object.keys(this.filters).forEach(key => {
-                if (this.filters[key]) {
+                if (Array.isArray(this.filters[key])) {
+                    this.filters[key].forEach(value => {
+                        if (value) params.append(key, value);
+                    });
+                } else if (this.filters[key]) {
                     params.append(key, this.filters[key]);
                 }
             });
@@ -279,8 +291,8 @@ function productsFilter() {
             this.filters = {
                 search: '',
                 category: '',
-                size: '',
-                color: '',
+                sizes: [],
+                colors: [],
                 min_price: '',
                 max_price: '',
                 sort: '',
